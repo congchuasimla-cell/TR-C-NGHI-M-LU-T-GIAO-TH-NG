@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Trắc Nghiệm An Toàn Giao Thông</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e9ecef;
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .timer {
+            color: var(--danger);
+            font-size: 18px;
+            background-color: #fce8e6;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .question-card {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            background-color: var(--light);
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-item:hover {
+            background-color: #e2e6ea;
+            border-color: #adb5bd;
+        }
+
+        .option-item.selected {
+            border-color: var(--primary);
+            background-color: #e7f1ff;
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .progress-container {
+            background-color: #dee2e6;
+            border-radius: 10px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .result-screen {
+            text-align: center;
+        }
+
+        .score-big {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .feedback-msg {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-screen" class="login-screen">
+        <h1>Khảo Sát An Toàn Giao Thông</h1>
+        <div class="form-group">
+            <label for="student-name">Họ và tên học sinh:</label>
+            <input type="text" id="student-name" placeholder="Ví dụ: Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+            <label for="student-class">Lớp:</label>
+            <input type="text" id="student-class" placeholder="Ví dụ: 10A1" required>
+        </div>
+        <button onclick="startQuiz()">Bắt đầu làm bài</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="quiz-header">
+            <div>Học sinh: <span id="display-name" style="color:var(--primary);"></span> | Lớp: <span id="display-class" style="color:var(--primary);"></span></div>
+            <div class="timer">Thời gian: <span id="time-left">20:00</span></div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="quiz-body"></div>
+
+        <div class="quiz-footer">
+            <button id="btn-prev" onclick="changeQuestion(-1)" style="background-color: #6c757d;">Câu trước</button>
+            <span id="question-counter" style="align-self: center; font-weight: bold;">Câu 1 / 20</span>
+            <button id="btn-next" onclick="changeQuestion(1)">Câu tiếp theo</button>
+            <button id="btn-submit" onclick="confirmSubmit()" class="hidden" style="background-color: var(--success);">Nộp bài</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-screen hidden">
+        <h1>Kết Quả Bài Thi</h1>
+        <div style="font-size: 18px; margin-top: 10px;">
+            Chúc mừng học sinh <span id="res-name" style="font-weight: bold;"></span> - Lớp <span id="res-class" style="font-weight: bold;"></span> đã hoàn thành bài thi!
+        </div>
+        <div class="score-big"><span id="res-score">0</span> / 200 Điểm</div>
+        <div style="font-size: 16px; margin-bottom: 10px;">Số câu trả lời đúng: <span id="res-correct" style="font-weight: bold; color: var(--success);">0</span> / 20</div>
+        <div id="res-feedback" class="feedback-msg"></div>
+        <button onclick="location.reload()" style="background-color: #6c757d;">Thoát và làm lại</button>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu 20 câu hỏi ĐÃ XÁO TRỘN ĐÁP ÁN hoàn toàn
+    const quizData = [
+        { q: "Bạn Nam (15 tuổi) được bố mua cho một chiếc xe máy điện để tự đi học. Nhận định nào sau đây là ĐÚNG về quyền điều khiển phương tiện của Nam?", a: ["Nam được phép đi xe máy điện vì loại xe này không yêu cầu độ tuổi.", "Nam được phép đi nếu có người lớn ngồi sau giám sát.", "Nam chưa được phép đi xe máy điện, vì luật quy định người từ đủ 16 tuổi trở lên mới được điều khiển loại xe này.", "Nam được phép đi vì xe máy điện có vận tốc tối đa thấp, không nguy hiểm."], correct: 2 },
+        { q: "Bạn đang đi xe máy điện trên đường và muốn rẽ trái (qua đường). Quy trình bật đèn xi-nhan (tín hiệu chuyển hướng) nào dưới đây an toàn nhất?", a: ["Bật xi-nhan trước khi rẽ khoảng 25-30 mét, quan sát gương và phía sau, khi thấy an toàn mới từ từ chuyển hướng.", "Vừa bật xi-nhan là lập tức bẻ lái rẽ luôn để tiết kiệm thời gian.", "Chỉ cần bật xi-nhan khi đã rẽ được một nửa quãng đường để báo hiệu cho xe phía sau biết.", "Không cần bật xi-nhan nếu thấy đường lúc đó vắng vẻ."], correct: 0 },
+        { q: "Tại ngã tư không có vòng xuyến, khi đèn xanh bật mở, bạn chuẩn bị rẽ trái thì phải nhường đường cho những phương tiện nào?", a: ["Không phải nhường ai vì đèn hướng của mình đang là màu xanh.", "Nhường đường cho các xe đi từ phía bên trái mình tới.", "Cứ đi trước, xe nào nhỏ hơn thì phải tự động nhường mình.", "Nhường đường cho các xe đi ngược chiều đang đi thẳng hoặc rẽ phải."], correct: 3 },
+        { q: "Xe đạp điện và xe máy điện di chuyển rất êm, hầu như không có tiếng động. Khi muốn vượt một xe khác phía trước, bạn nên làm gì để an toàn?", a: ["Phóng thật nhanh áp sát từ phía sau rồi lách qua thật đột ngột.", "Đi sát vào bên phải của xe đó và cố gắng lách qua khe hẹp sát lề đường.", "Giữ khoảng cách, sử dụng còi hoặc đèn tín hiệu từ sớm để người phía trước biết, khi họ có tín hiệu nhường mới vượt lên về phía bên trái.", "Vừa đi vừa hét to để người phía trước tránh đường."], correct: 2 },
+        { q: "Biển báo giao thông hình tam giác đều, viền đỏ, nền màu vàng, trên nền có hình vẽ một chiếc xe đạp màu đen có ý nghĩa gì?", a: ["Đường dành riêng cho người đi xe đạp.", "Biển cảnh báo nguy hiểm: Sắp đến đoạn đường thường có xe đạp cắt ngang hoặc có người đi xe đạp lưu thông.", "Cấm tất cả các loại xe đạp đi vào đoạn đường này.", "Khu vực được phép đua xe đạp."], correct: 1 },
+        { q: "Luật Giao thông đường bộ nghiêm cấm hành vi nào dưới đây đối với người điều khiển xe đạp, xe máy điện?", a: ["Sử dụng ô (dù), điện thoại di động, thiết bị âm thanh (tai nghe) khi đang lái xe.", "Chở một người ngồi sau dưới 7 tuổi.", "Bật đèn chiếu sáng vào ban đêm.", "Đi xe sát vào lề đường bên phải."], correct: 0 },
+        { q: "Tình huống: Bạn đi xe đạp điện đèo bạn thân đi học. Bạn thân ngồi sau đòi cầm ô (dù) che mưa cho cả hai người. Hành vi này có vi phạm luật không?", a: ["Không vi phạm, vì người lái xe không trực tiếp cầm ô.", "Không vi phạm, miễn là chiếc ô không che mất tầm nhìn của người lái xe.", "Chỉ vi phạm khi trời gió to, còn mưa nhỏ thì được phép.", "Vi phạm, vì luật nghiêm cấm người ngồi sau xe đạp, xe máy điện sử dụng ô (dù)."], correct: 3 },
+        { q: "Khi điều khiển xe gắn máy dưới 50cc (xe xăng như Wave 50, Cub 50), hành vi nào dưới đây sẽ bị xử phạt nặng theo quy định hiện hành?", a: ["Chạy xe với tốc độ 30 km/h trong đô thị.", "Người điều khiển hoặc người ngồi sau không đội mũ bảo hiểm hoặc đội mũ nhưng không cài quai đúng quy cách.", "Người điều khiển xe không mang theo Chứng minh nhân dân/CCCD.", "Xe không có giỏ xe ở phía trước."], correct: 1 },
+        { q: "Đi bộ qua đường thế nào mới đúng luật và đảm bảo an toàn tại những đoạn đường không có đèn tín hiệu dành riêng cho người đi bộ?", a: ["Quan sát kỹ các xe đang đi tới, chủ động nhường đường cho các xe cơ giới, ra tín hiệu xin đường và chỉ qua đường khi bảo đảm an toàn.", "Cứ bước xuống đường và đi băng qua, các xe lớn thấy mình sẽ phải tự động dừng lại.", "Chạy thật nhanh qua đường mà không cần nhìn sang hai bên để rút ngắn thời gian nguy hiểm.", "Đi chéo góc qua đường để về đích nhanh nhất."], correct: 0 },
+        { q: "Khi gặp hiệu lệnh của người điều khiển giao thông (Cảnh sát giao thông) trái với tín hiệu của đèn giao thông hoặc biển báo, bạn phải chấp hành theo hiệu lệnh của ai?", a: ["Chấp hành theo đèn tín hiệu giao thông.", "Chấp hành theo biển báo hiệu đường bộ.", "Tự lựa chọn theo phương án nào thuận tiện nhất cho mình.", "Chấp hành theo hiệu lệnh của người điều khiển giao thông."], correct: 3 },
+        { q: "Trên đường đi học, bạn nhìn thấy hai người bạn cùng trường đang lạng lách, đánh võng và dùng điện thoại để quay video \"tạo trend\" trên đường. Bạn nên có suy nghĩ và hành động gì?", a: ["Thấy hành động đó rất ngầu, lập tức đuổi theo để quay clip chung và đăng lên mạng xã hội kiếm tương tác.", "Nhận thức rõ sự nguy hiểm, nhắc bạn dừng lại khi đến trường hoặc chủ động báo cáo với thầy cô giáo xử lý.", "Ngó lơ vì không phải việc của mình, chỉ chụp ảnh lại để chia sẻ vào nhóm chat riêng của lớp nhằm bàn tán.", "Đứng lại bên đường để xem, hò hét và cổ vũ nhiệt tình để các bạn thực hiện thêm nhiều động tác khó hơn."], correct: 1 },
+        { q: "Đâu là hành vi thể hiện sự \"vô văn hóa\" và ích kỷ khi tham gia giao thông phổ biến nhất ở cổng trường vào giờ tan học?", a: ["Tụ tập xe thành đám đông ngay giữa lòng đường trước cổng trường, gây ùn tắc giao thông để đứng buôn chuyện.", "Xếp hàng xe trật tự sát lề đường bên phải để chờ cha mẹ đến đón hoặc chờ các bạn khác cùng về.", "Chủ động tắt máy xe, dắt bộ nhanh chóng ra khỏi khu vực đông đúc để tránh làm nghẽn lối đi chung.", "Di chuyển xe chậm rãi, chủ động nhường đường cho các em học sinh khóa dưới và người đi bộ đi trước."], correct: 0 },
+        { q: "Khi vô tình xảy ra va chạm nhẹ trên đường (không có thiệt hại về người, xe chỉ bị trầy xước nhỏ), cách ứng xử nào thể hiện bạn là một học sinh có giáo dục?", a: ["Lập tức xuống xe, lớn tiếng quát tháo, đe dọa đối phương và đổ lỗi hoàn toàn cho họ để không phải đền.", "Đứng ăn vạ giữa đường, khóc lóc om sòm nhằm thu hút sự chú ý và ép buộc đối phương phải bồi thường tiền.", "Lợi dụng lúc đường đông đúc, nhanh chóng tăng tốc phóng xe bỏ chạy thật nhanh nhằm trốn tránh trách nhiệm.", "Bình tĩnh đỡ đối phương dậy, kiểm tra tình hình chấn thương, chủ động xin lỗi và cùng tìm cách giải quyết."], correct: 3 },
+        { q: "Thói quen \"bấm còi liên thanh, bấm còi kéo dài\" khi đứng chờ đèn đỏ còn khoảng 2-3 giây hoặc khi đi qua khu vực bệnh viện, trường học phản ánh điều gì ở người lái xe?", a: ["Sự thiếu kiên nhẫn, kém văn minh khi tham gia giao thông và gây ra sự ức chế, ô nhiễm tiếng ồn cho người khác.", "Sự vội vã trong học tập, biết tranh thủ thời gian từng giây và có phong cách sống nhanh nhẹn, hiện đại.", "Kỹ năng sử dụng các thiết bị còi đèn trên xe rất thành thạo, giúp cảnh báo từ xa cho mọi người né tránh.", "Sự cẩn thận quá mức, muốn liên tục báo hiệu cho dòng xe phía trước biết để chủ động nhường đường cho mình."], correct: 0 },
+        { q: "Bạn A cho rằng: \"Mình chỉ cần đi đúng luật của mình là đủ, còn người khác đi sai hay gặp tai nạn trên đường thì mặc kệ họ, không phải việc của mình\". Ý kiến của bạn về tư duy này như thế nào?", a: ["Hoàn toàn đúng, chuyện của ai người nấy lo, việc hỗ trợ người khác chỉ làm mất thời gian học tập của bản thân.", "Đúng, vì nếu dừng lại giúp đỡ người bị tai nạn rất dễ bị vạ lây, bị dàn cảnh lừa đảo hoặc bị đổ oan.", "Chưa đúng, vì văn hóa giao thông đòi hỏi chúng ta phải có tinh thần chia sẻ, hỗ trợ người gặp hoạn nạn trên đường.", "Chỉ đúng khi di chuyển vào ban ngày, còn ban đêm đường vắng thì tuyệt đối không nên dừng lại can thiệp."], correct: 2 },
+        { q: "Thống kê thực tế cho thấy, nguyên nhân hàng đầu dẫn đến các vụ tai nạn giao thông nghiêm trọng ở lứa tuổi học sinh trung học hiện nay xuất phát từ đâu?", a: ["Do hệ thống cơ sở hạ tầng giao thông chưa hoàn thiện, đường xá có nhiều ổ gà và thiếu đèn chiếu sáng.", "Do ý thức chủ quan của học sinh như chạy quá tốc độ, lạng lách, tự ý chuyển hướng không quan sát đường.", "Do lỗi kỹ thuật bất ngờ từ nhà sản xuất khiến xe máy điện tự động tăng tốc hoặc mất phanh khi đang đi.", "Do điều kiện thời tiết tại Việt Nam quá khắc nghiệt, thường xuyên có mưa lớn gây trơn trượt và hạn chế tầm nhìn."], correct: 1 },
+        { q: "Hãy nhìn vào hình vẽ mô tả các góc khuất quanh một chiếc xe container. Vị trí nào được gọi là \"Vùng Chết\" (vùng nguy hiểm nhất tuyệt đối không được đi vào)?", a: ["Khoảng không gian nằm ở ngay phía trên nóc thùng xe, nơi tài xế không thể quan sát khi di chuyển qua cầu.", "Vị trí an toàn nằm ở cách xa xe container từ khoảng 20 mét trở lên về phía sau tính từ đuôi xe.", "Các khoảng không gian ở ngay sát trước đầu xe, hai bên sườn xe và phía sau đuôi của xe tải hoặc xe container.", "Toàn bộ phần làn đường dành riêng cho người đi bộ nằm cách xa xe container ở các ngã tư đô thị."], correct: 2 },
+        { q: "Tác động nguy hiểm nhất của việc học sinh tụ tập \"chạy xe dàn hàng ngang\" từ 3 xe trở lên trên đường quốc lộ hoặc đường phố lớn là gì?", a: ["Chiếm hết lối đi, ép các xe lớn phía sau phải lấn sang làn ngược chiều để vượt, dễ gây tai nạn đối đầu.", "Làm cho các thành viên trong nhóm khó nghe rõ tiếng nói của nhau do tiếng ồn từ động cơ các xe xung quanh.", "Làm cho xe điện bị tiêu hao năng lượng pin nhanh hơn bình thường do phải chịu lực cản gió lớn từ phía trước.", "Làm cho cảnh quan mỹ quan đô thị xung quanh trường học trông lộn xộn và không được đẹp mắt trong mắt người dân."], correct: 0 },
+        { q: "Một vụ tai nạn giao thông xảy ra với học sinh trung học sẽ để lại \"chi phí cơ hội\" đắt đỏ nhất nào cho tương lai của chính học sinh đó?", a: ["Số tiền lớn phải nộp phạt vi phạm hành chính cho lực lượng Cảnh sát giao thông theo quy định của pháp luật.", "Nguy cơ phải dừng học, mang thương tật vĩnh viễn và khép lại toàn bộ ước mơ, cơ hội nghề nghiệp tương lai.", "Chi phí đắt đỏ để sửa chữa hư hỏng hoặc phải mua một chiếc xe máy điện hoàn toàn mới để tiếp tục đi học.", "Việc bị nhà trường lưu tên vào biên bản vi phạm kỷ luật và bị hạ bậc hạnh kiểm trong học kỳ đó."], correct: 1 },
+        { q: "Câu khẩu hiệu (Slogan) nào về An toàn giao thông mang thông điệp ngắn gọn và ý nghĩa nhất nhắc nhở học sinh về giá trị của cuộc sống?", a: ["\"Nhanh một giây, chậm cả đời\".", "\"An toàn là bạn, tai nạn là thù\".", "\"Chấp hành luật để không bị phạt\".", "\"Phía trước tay lái là sự sống\"."], correct: 3 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+    let timerInterval;
+    let timeRemaining = 1200; 
+
+    function startQuiz() {
+        const name = document.getElementById("student-name").value.trim();
+        const studentClass = document.getElementById("student-class").value.trim();
+
+        if (!name || !studentClass) {
+            alert("Vui lòng nhập đầy đủ Họ tên và Lớp trước khi làm bài!");
+            return;
+        }
+
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("quiz-screen").classList.remove("hidden");
+
+        document.getElementById("display-name").innerText = name;
+        document.getElementById("display-class").innerText = studentClass;
+
+        renderQuestion();
+        startTimer();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            
+            document.getElementById("time-left").innerText = 
+                `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function renderQuestion() {
+        const quizBody = document.getElementById("quiz-body");
+        const currentQuestion = quizData[currentQuestionIndex];
+        
+        let html = `
+            <div class="question-card">
+                <div class="question-text">Câu ${currentQuestionIndex + 1}: ${currentQuestion.q}</div>
+                <ul class="options-list">
+        `;
+
+        currentQuestion.a.forEach((option, idx) => {
+            const prefix = String.fromCharCode(65 + idx); 
+            const isSelected = userAnswers[currentQuestionIndex] === idx ? 'selected' : '';
+            html += `
+                <li class="option-item ${isSelected}" onclick="selectOption(${idx})">
+                    <strong>${prefix}.</strong> ${option}
+                </li>
+            `;
+        });
+
+        html += `</ul></div>`;
+        quizBody.innerHTML = html;
+
+        document.getElementById("question-counter").innerText = `Câu ${currentQuestionIndex + 1} / ${quizData.length}`;
+        document.getElementById("progress-bar").style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+        
+        document.getElementById("btn-prev").disabled = currentQuestionIndex === 0;
+        
+        if (currentQuestionIndex === quizData.length - 1) {
+            document.getElementById("btn-next").classList.add("hidden");
+            document.getElementById("btn-submit").classList.remove("hidden");
+        } else {
+            document.getElementById("btn-next").classList.remove("hidden");
+            document.getElementById("btn-submit").classList.add("hidden");
+        }
+    }
+
+    function selectOption(index) {
+        userAnswers[currentQuestionIndex] = index;
+        renderQuestion();
+    }
+
+    mixAnswers = () => {}
+
+    function changeQuestion(direction) {
+        currentQuestionIndex += direction;
+        renderQuestion();
+    }
+
+    function confirmSubmit() {
+        const unansweredCount = userAnswers.filter(ans => ans === null).length;
+        let msg = "Bạn có chắc chắn muốn nộp bài thi không?";
+        if (unansweredCount > 0) {
+            msg = `Bạn còn ${unansweredCount} câu hỏi chưa trả lời. Bạn vẫn muốn nộp bài chứ?`;
+        }
+        
+        if (confirm(msg)) {
+            clearInterval(timerInterval);
+            submitQuiz();
+        }
+    }
+
+    function submitQuiz() {
+        let correctCount = 0;
+        quizData.forEach((item, index) => {
+            if (userAnswers[index] === item.correct) {
+                correctCount++;
+            }
+        });
+
+        const finalScore = correctCount * 10;
+
+        let feedback = "";
+        if (correctCount >= 18) {
+            feedback = "Xuất sắc! Bạn xứng đáng là 'Đại sứ Giao thông xanh'. Hãy tiếp tục lan tỏa ý thức này đến các bạn xung quanh nhé!";
+        } else if (correctCount >= 12) {
+            feedback = "Khá tốt! Bạn đã có ý thức nền tảng rất ổn, hãy chú ý hơn ở các tình huống thực tế và điểm mù của xe lớn nhé!";
+        } else {
+            feedback = "Cảnh báo đỏ! Bạn cần đọc kỹ lại phần giải thích đáp án. Ra đường với lượng kiến thức này là đang tự đặt mình vào vùng nguy hiểm đấy!";
+        }
+
+        document.getElementById("quiz-screen").classList.add("hidden");
+        document.getElementById("result-screen").classList.remove("hidden");
+
+        document.getElementById("res-name").innerText = document.getElementById("student-name").value;
+        document.getElementById("res-class").innerText = document.getElementById("student-class").value;
+        document.getElementById("res-score").innerText = finalScore;
+        document.getElementById("res-correct").innerText = correctCount;
+        document.getElementById("res-feedback").innerText = feedback;
+    }
+</script>
+
+</body>
+</html>
